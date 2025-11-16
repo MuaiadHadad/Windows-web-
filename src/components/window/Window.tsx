@@ -7,6 +7,7 @@ import type { WindowInstance } from '../../types/window';
 import NotesApp from '../../apps/notes/NotesApp';
 import FilesApp from '../../apps/files/FilesApp';
 import SettingsApp from '../../apps/settings/SettingsApp';
+import { getAppMeta } from '../../apps/registry';
 
 const AppContent: React.FC<{ appId: string }> = ({ appId }) => {
   switch (appId) {
@@ -28,6 +29,7 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   const moveWindow = useWindowsStore((s) => s.moveWindow);
   const resizeWindow = useWindowsStore((s) => s.resizeWindow);
   const focusWindow = useWindowsStore((s) => s.focusWindow);
+  const meta = getAppMeta(win.appId);
 
   if (win.minimized) return null;
 
@@ -36,19 +38,23 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   };
 
   const body = (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/70 shadow-[0_25px_80px_rgba(2,6,23,0.6)] backdrop-blur-2xl">
+    <div className="flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-white/12 bg-gradient-to-br from-slate-900/80 via-slate-900/70 to-slate-950/85 shadow-[0_30px_80px_rgba(2,6,23,0.65)] backdrop-blur-[20px] ring-1 ring-white/5">
       <div
-        className="window-handle flex h-12 items-center justify-between border-b border-white/5 bg-white/5 px-4 text-sm font-medium"
+        className="window-handle relative flex h-12 items-center justify-between border-b border-white/10 bg-gradient-to-r from-white/15 via-white/5 to-transparent px-4 text-sm font-medium text-white"
         onMouseDown={() => focusWindow(win.id)}
       >
-        <span className="select-none tracking-tight">{win.title}</span>
+        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <div className="flex items-center gap-2">
-          <WindowControlButton label="Minimize" color="bg-yellow-300" onClick={() => minimizeWindow(win.id)} />
-          <WindowControlButton label="Maximize" color="bg-green-300" onClick={() => maximizeWindow(win.id)} />
-          <WindowControlButton label="Close" color="bg-rose-400" onClick={() => closeWindow(win.id)} />
+          <span className={`h-2 w-2 rounded-full ${meta.aura}`} aria-hidden />
+          <span className="select-none tracking-tight drop-shadow">{win.title}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <WindowControlButton label="Minimize" color="text-yellow-200" glyph="–" onClick={() => minimizeWindow(win.id)} />
+          <WindowControlButton label="Maximize" color="text-emerald-200" glyph="▢" onClick={() => maximizeWindow(win.id)} />
+          <WindowControlButton label="Close" color="text-rose-300" glyph="✕" onClick={() => closeWindow(win.id)} />
         </div>
       </div>
-      <div className="flex-1 overflow-auto bg-slate-950/50" onMouseDown={() => focusWindow(win.id)}>
+      <div className="flex-1 overflow-auto bg-gradient-to-br from-slate-900/70 via-slate-950/60 to-slate-950/80" onMouseDown={() => focusWindow(win.id)}>
         <AppContent appId={win.appId} />
       </div>
     </div>
@@ -104,14 +110,21 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   );
 };
 
-const WindowControlButton: React.FC<{ label: string; color: string; onClick: () => void }> = ({ label, color, onClick }) => (
+const WindowControlButton: React.FC<{ label: string; color: string; glyph: string; onClick: () => void }> = ({
+  label,
+  color,
+  glyph,
+  onClick,
+}) => (
   <button
     type="button"
     onClick={onClick}
     onMouseDown={(e) => e.stopPropagation()}
     aria-label={label}
-    className={`h-3.5 w-3.5 rounded-full ${color} shadow-inner transition hover:scale-110`}
-  />
+    className={`flex h-7 w-7 items-center justify-center rounded-xl bg-white/10 text-[11px] font-semibold ${color} shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] transition hover:bg-white/20 hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)]`}
+  >
+    {glyph}
+  </button>
 );
 
 export default Window;

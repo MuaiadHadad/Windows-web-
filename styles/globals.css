@@ -11,6 +11,46 @@ body,
 body {
   margin: 0;
   font-family: 'Segoe UI Variable', 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.16), transparent 42%),
+    radial-gradient(circle at 78% 0%, rgba(14, 165, 233, 0.35), transparent 46%),
+    radial-gradient(circle at 12% 80%, rgba(236, 72, 153, 0.25), transparent 48%),
+    linear-gradient(135deg, #030712, #0b1225 52%, #020617);
+  color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 10% 24%, rgba(59, 130, 246, 0.2), transparent 42%),
+    radial-gradient(circle at 75% 4%, rgba(168, 85, 247, 0.25), transparent 40%),
+    radial-gradient(circle at 40% 88%, rgba(52, 211, 153, 0.14), transparent 38%);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 40 40"><path fill="%23ffffff0d" d="M0 0h2v2H0zM20 20h2v2h-2zM10 30h2v2h-2zM30 10h2v2h-2z"/></svg>');
+  mix-blend-mode: soft-light;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: -1;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.35);
+  color: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI Variable', 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.25), transparent 45%),
     radial-gradient(circle at 90% 0%, rgba(56, 189, 248, 0.35), transparent 50%),
     linear-gradient(135deg, #030712, #0f172a 60%, #020617);
