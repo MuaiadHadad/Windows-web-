@@ -1,0 +1,51 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.idea/
+.vscode/
+.env*
+coverage/
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/fallback-*.js
+{
+  "name": "windows-web-os",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zustand": "4.5.2",
+    "framer-motion": "11.0.0",
+    "react-draggable": "4.4.5",
+    "re-resizable": "6.9.6",
+    "next-pwa": "5.6.0",
+    "nanoid": "5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3",
+    "@types/react": "18.2.46",
+    "@types/node": "20.11.30",
+    "tailwindcss": "3.4.0",
+    "postcss": "8.4.35",
+    "autoprefixer": "10.4.17",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.3",
+    "prettier": "3.2.5"
+  }
+}
+
