@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Desktop Interativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="desktop" id="desktop">
+      <div class="status-bar">
+        <span class="status-pill">Bem-vindo</span>
+        <span class="status-pill">Mood criativo</span>
+      </div>
+      <div class="icon-grid" id="iconGrid">
+        <button class="desktop-icon" draggable="true" data-app="explorer">
+          <span class="icon-emoji">🗂️</span>
+          <span class="icon-label">Explorador</span>
+        </button>
+        <button class="desktop-icon" draggable="true" data-app="notes">
+          <span class="icon-emoji">📝</span>
+          <span class="icon-label">Notas</span>
+        </button>
+        <button class="desktop-icon" draggable="true" data-app="music">
+          <span class="icon-emoji">🎵</span>
+          <span class="icon-label">Música</span>
+        </button>
+        <button class="desktop-icon" draggable="true" data-app="gallery">
+          <span class="icon-emoji">🖼️</span>
+          <span class="icon-label">Galeria</span>
+        </button>
+        <button class="desktop-icon" draggable="true" data-app="settings">
+          <span class="icon-emoji">⚙️</span>
+          <span class="icon-label">Configurações</span>
+        </button>
+      </div>
+      <button class="floating-action" id="settingsShortcut" title="Abrir configurações">
+        <span>⚙️</span>
+      </button>
+      <div class="taskbar" aria-label="Barra de tarefas">
+        <button class="taskbar-icon start" aria-label="Menu iniciar">
+          <span class="win-logo" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </button>
+        <div class="taskbar-center">
+          <button class="taskbar-icon" data-app="explorer" title="Explorador">🗂️</button>
+          <button class="taskbar-icon" data-app="notes" title="Notas">📝</button>
+          <button class="taskbar-icon" data-app="music" title="Música">🎵</button>
+          <button class="taskbar-icon" data-app="gallery" title="Galeria">🖼️</button>
+        </div>
+        <div class="taskbar-tray">
+          <span class="tray-icon">📶</span>
+          <span class="tray-icon">🔊</span>
+          <span class="taskbar-clock" id="clock"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="window" data-app="explorer">
+      <div class="window-header">
+        <h3>Explorador</h3>
+        <button class="close-window" aria-label="Fechar">×</button>
+      </div>
+      <div class="window-body">
+        <p>Simulação de janela do explorador com alguns ficheiros fictícios.</p>
+        <ul class="file-list">
+          <li>Documento-projeto.docx</li>
+          <li>Imagens-verao.zip</li>
+          <li>Playlist-favorita.m3u</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="window" data-app="notes">
+      <div class="window-header">
+        <h3>Notas rápidas</h3>
+        <button class="close-window" aria-label="Fechar">×</button>
+      </div>
+      <div class="window-body">
+        <textarea placeholder="Escreva as suas ideias aqui..."></textarea>
+      </div>
+    </div>
+
+    <div class="window" data-app="music">
+      <div class="window-header">
+        <h3>Música</h3>
+        <button class="close-window" aria-label="Fechar">×</button>
+      </div>
+      <div class="window-body">
+        <p>Tocar agora:</p>
+        <div class="music-card">
+          <strong>Dreamscape</strong>
+          <span>by Nova Pulse</span>
+          <div class="equalizer">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="window" data-app="gallery">
+      <div class="window-header">
+        <h3>Galeria</h3>
+        <button class="close-window" aria-label="Fechar">×</button>
+      </div>
+      <div class="window-body gallery">
+        <div class="gallery-item">🌅</div>
+        <div class="gallery-item">🌄</div>
+        <div class="gallery-item">🌌</div>
+      </div>
+    </div>
+
+    <div class="window" data-app="settings">
+      <div class="window-header">
+        <h3>Dica</h3>
+        <button class="close-window" aria-label="Fechar">×</button>
+      </div>
+      <div class="window-body">
+        <p>Use o atalho no canto inferior direito para abrir as configurações completas.</p>
+      </div>
+    </div>
+
+    <div class="settings-panel hidden" id="settingsPanel" role="dialog" aria-modal="true">
+      <div class="panel-content">
+        <header>
+          <h2>Configurações do Desktop</h2>
+          <button class="close-settings" aria-label="Fechar">×</button>
+        </header>
+        <section>
+          <h3>Papel de parede</h3>
+          <p>Escolha uma das opções ou utilize um degradê personalizado.</p>
+          <div class="wallpaper-options">
+            <button
+              class="wallpaper-option"
+              data-wallpaper="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+            ></button>
+            <button
+              class="wallpaper-option"
+              data-wallpaper="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+            ></button>
+            <button
+              class="wallpaper-option"
+              data-wallpaper="linear-gradient(135deg, #5ee7df 0%, #b490ca 100%)"
+            ></button>
+            <button
+              class="wallpaper-option"
+              data-wallpaper="linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
+            ></button>
+          </div>
+          <label class="custom-color">
+            <span>Cor sólida personalizada</span>
+            <input type="color" id="wallpaperColor" value="#1c1f2b" />
+          </label>
+        </section>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
