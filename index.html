@@ -15,8 +15,8 @@
   <body>
     <div class="desktop" id="desktop">
       <div class="status-bar">
-        <span>Bem-vindo</span>
-        <span id="clock"></span>
+        <span class="status-pill">Bem-vindo</span>
+        <span class="status-pill">Mood criativo</span>
       </div>
       <div class="icon-grid" id="iconGrid">
         <button class="desktop-icon" draggable="true" data-app="explorer">
@@ -43,6 +43,24 @@
       <button class="floating-action" id="settingsShortcut" title="Abrir configurações">
         <span>⚙️</span>
       </button>
+      <div class="taskbar" aria-label="Barra de tarefas">
+        <button class="taskbar-icon start" aria-label="Menu iniciar">
+          <span class="win-logo" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+        </button>
+        <div class="taskbar-center">
+          <button class="taskbar-icon" data-app="explorer" title="Explorador">🗂️</button>
+          <button class="taskbar-icon" data-app="notes" title="Notas">📝</button>
+          <button class="taskbar-icon" data-app="music" title="Música">🎵</button>
+          <button class="taskbar-icon" data-app="gallery" title="Galeria">🖼️</button>
+        </div>
+        <div class="taskbar-tray">
+          <span class="tray-icon">📶</span>
+          <span class="tray-icon">🔊</span>
+          <span class="taskbar-clock" id="clock"></span>
+        </div>
+      </div>
     </div>
 
     <div class="window" data-app="explorer">

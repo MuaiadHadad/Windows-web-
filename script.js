@@ -7,6 +7,7 @@ const wallpaperColor = document.getElementById('wallpaperColor');
 const desktop = document.getElementById('desktop');
 const clock = document.getElementById('clock');
 const iconGrid = document.getElementById('iconGrid');
+const taskbarIcons = document.querySelectorAll('.taskbar-icon[data-app]');
 
 let activeZIndex = 10;
 let draggedIcon = null;
@@ -31,8 +32,16 @@ windows.forEach((win) => {
   });
 });
 
+const registerLaunchers = (nodeList) => {
+  nodeList.forEach((trigger) => {
+    trigger.addEventListener('click', () => openWindow(trigger.dataset.app));
+  });
+};
+
+registerLaunchers(icons);
+registerLaunchers(taskbarIcons);
+
 icons.forEach((icon) => {
-  icon.addEventListener('click', () => openWindow(icon.dataset.app));
 
   icon.addEventListener('dragstart', (event) => {
     draggedIcon = icon;
