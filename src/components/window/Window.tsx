@@ -10,14 +10,14 @@ import SettingsApp from '../../apps/settings/SettingsApp';
 
 const AppContent: React.FC<{ appId: string }> = ({ appId }) => {
   switch (appId) {
-    case 'notes':
-      return <NotesApp />;
-    case 'files':
-      return <FilesApp />;
-    case 'settings':
-      return <SettingsApp />;
-    default:
-      return <div className="p-2">Unknown app</div>;
+  case 'notes':
+    return <NotesApp />;
+  case 'files':
+    return <FilesApp />;
+  case 'settings':
+    return <SettingsApp />;
+  default:
+    return <div className="p-2">Unknown app</div>;
   }
 };
 
@@ -36,28 +36,19 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   };
 
   const body = (
-    <div className="flex flex-col w-full h-full bg-slate-800 rounded shadow-lg border border-slate-600 overflow-hidden">
-      <div className="flex items-center justify-between bg-slate-700 px-2 h-8 cursor-move select-none" onMouseDown={() => focusWindow(win.id)}>
-        <span className="text-sm font-medium">{win.title}</span>
+    <div className="flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/70 shadow-[0_25px_80px_rgba(2,6,23,0.6)] backdrop-blur-2xl">
+      <div
+        className="window-handle flex h-12 items-center justify-between border-b border-white/5 bg-white/5 px-4 text-sm font-medium"
+        onMouseDown={() => focusWindow(win.id)}
+      >
+        <span className="select-none tracking-tight">{win.title}</span>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => minimizeWindow(win.id)}
-            className="w-4 h-4 bg-yellow-500 rounded text-[10px] flex items-center justify-center"
-            title="Minimize"
-          />
-          <button
-            onClick={() => maximizeWindow(win.id)}
-            className="w-4 h-4 bg-green-500 rounded text-[10px] flex items-center justify-center"
-            title="Maximize"
-          />
-          <button
-            onClick={() => closeWindow(win.id)}
-            className="w-4 h-4 bg-red-600 rounded text-[10px] flex items-center justify-center"
-            title="Close"
-          />
+          <WindowControlButton label="Minimize" color="bg-yellow-300" onClick={() => minimizeWindow(win.id)} />
+          <WindowControlButton label="Maximize" color="bg-green-300" onClick={() => maximizeWindow(win.id)} />
+          <WindowControlButton label="Close" color="bg-rose-400" onClick={() => closeWindow(win.id)} />
         </div>
       </div>
-      <div className="flex-1 bg-slate-900 overflow-auto" onMouseDown={() => focusWindow(win.id)}>
+      <div className="flex-1 overflow-auto bg-slate-950/50" onMouseDown={() => focusWindow(win.id)}>
         <AppContent appId={win.appId} />
       </div>
     </div>
@@ -82,7 +73,7 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   return (
     <AnimatePresence>
       <Draggable
-        handle=".cursor-move"
+        handle=".window-handle"
         defaultPosition={{ x: win.x, y: win.y }}
         position={{ x: win.x, y: win.y }}
         onStop={onDragStop}
@@ -112,6 +103,16 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
     </AnimatePresence>
   );
 };
+
+const WindowControlButton: React.FC<{ label: string; color: string; onClick: () => void }> = ({ label, color, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    onMouseDown={(e) => e.stopPropagation()}
+    aria-label={label}
+    className={`h-3.5 w-3.5 rounded-full ${color} shadow-inner transition hover:scale-110`}
+  />
+);
 
 export default Window;
 

@@ -4,13 +4,13 @@ import type { WindowInstance } from '../types/window';
 
 interface WindowsState {
   windows: WindowInstance[];
-  openWindow: (appId: string, title: string) => void;
-  closeWindow: (id: string) => void;
-  minimizeWindow: (id: string) => void;
-  maximizeWindow: (id: string) => void;
-  focusWindow: (id: string) => void;
-  moveWindow: (id: string, x: number, y: number) => void;
-  resizeWindow: (id: string, width: number, height: number) => void;
+  openWindow: (_appId: string, _title: string) => void;
+  closeWindow: (_id: string) => void;
+  minimizeWindow: (_id: string) => void;
+  maximizeWindow: (_id: string) => void;
+  focusWindow: (_id: string) => void;
+  moveWindow: (_id: string, _x: number, _y: number) => void;
+  resizeWindow: (_id: string, _width: number, _height: number) => void;
 }
 
 const initialSize = { width: 500, height: 400 };
