@@ -1,4 +1,11 @@
 import React from 'react';
+import { usePreferencesStore } from '../../store/preferencesStore';
+
+const toggles = [
+  { key: 'focusAssist', label: 'Focus Assist', description: 'Silence notifications during work' },
+  { key: 'darkTheme', label: 'Dark Theme', description: 'Always use the luminous dark shell' },
+  { key: 'liveWallpapers', label: 'Live Wallpapers', description: 'Animate the desktop background' },
+] as const;
 
 const toggles = [
   { label: 'Focus Assist', description: 'Silence notifications during work' },
@@ -7,6 +14,7 @@ const toggles = [
 ];
 
 const SettingsApp: React.FC = () => {
+  const prefs = usePreferencesStore();
   return (
     <div className="flex h-full flex-col gap-4 bg-gradient-to-br from-white/5 via-white/0 to-sky-200/5 p-6 text-sm text-white/80">
       <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-sky-400/25 via-indigo-500/15 to-purple-500/20 p-4 shadow-[0_16px_44px_rgba(99,102,241,0.3)]">

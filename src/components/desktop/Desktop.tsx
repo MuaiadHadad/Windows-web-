@@ -7,6 +7,19 @@ import { APP_REGISTRY, getAppMeta } from '../../apps/registry';
 
 const Desktop: React.FC = () => {
   const windows = useWindowsStore((s) => s.windows);
+  const { darkTheme, liveWallpapers } = usePreferencesStore();
+
+  const wallpaperStyle: React.CSSProperties = {
+    backgroundImage: darkTheme
+      ? [
+          'radial-gradient(circle at 15% 25%, rgba(255,255,255,0.28), transparent 45%)',
+          'radial-gradient(circle at 85% 15%, rgba(56,189,248,0.35), transparent 55%)',
+          'radial-gradient(circle at 50% 120%, rgba(59,130,246,0.35), transparent 55%)',
+          'linear-gradient(135deg, #050915 0%, #05081a 45%, #0f172a 100%)',
+        ].join(', ')
+      : 'linear-gradient(135deg, #dbeafe 0%, #f1f5f9 50%, #e0f2fe 100%)',
+    transition: 'background 0.6s ease',
+  };
 
   const wallpaperStyle: React.CSSProperties = {
     backgroundImage:
@@ -42,9 +55,12 @@ const Desktop: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Windows */}
       {windows.map((w) => (
         <Window key={w.id} win={w} />
       ))}
+
       <Taskbar />
       <StartMenu />
     </div>
@@ -74,4 +90,3 @@ const DesktopIcon: React.FC<{ appId: string; title: string }> = ({ appId, title 
 };
 
 export default Desktop;
-
