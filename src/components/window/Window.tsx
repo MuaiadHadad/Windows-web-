@@ -41,6 +41,8 @@ const WindowControlButton: React.FC<{ label: string; color: string; glyph: strin
 const MIN_WIDTH = 300;
 const MIN_HEIGHT = 200;
 
+type ResizeDir = 'n' | 'e' | 's' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+
 const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   const closeWindow = useWindowsStore((s) => s.closeWindow);
   const minimizeWindow = useWindowsStore((s) => s.minimizeWindow);
@@ -73,22 +75,54 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
     window.addEventListener('mouseup', onUp);
   }, [win.id, win.x, win.y, win.maximized, moveWindow, focusWindow]);
 
-  const onResizeMouseDown = useCallback((e: React.MouseEvent) => {
+  const onResizeMouseDown = useCallback((dir: ResizeDir) => (e: React.MouseEvent) => {
     e.stopPropagation();
     if (win.maximized) return; // skip resizing when maximized
-    const startX = e.clientX;
-    const startY = e.clientY;
+    const startClientX = e.clientX;
+    const startClientY = e.clientY;
     const startW = win.width;
     const startH = win.height;
+    const startX = win.x;
+    const startY = win.y;
     focusWindow(win.id);
 
     const onMove = (ev: MouseEvent) => {
-      let newW = startW + (ev.clientX - startX);
-      let newH = startH + (ev.clientY - startY);
-      if (newW < MIN_WIDTH) newW = MIN_WIDTH;
-      if (newH < MIN_HEIGHT) newH = MIN_HEIGHT;
+      const dx = ev.clientX - startClientX;
+      const dy = ev.clientY - startClientY;
+
+      let newW = startW;
+      let newH = startH;
+      let newX = startX;
+      let newY = startY;
+
+      const includes = (d: ResizeDir, ch: 'n'|'e'|'s'|'w') => d.includes(ch);
+
+      if (includes(dir, 'e')) {
+        newW = Math.max(MIN_WIDTH, startW + dx);
+      }
+      if (includes(dir, 's')) {
+        newH = Math.max(MIN_HEIGHT, startH + dy);
+      }
+      if (includes(dir, 'w')) {
+        const rawW = startW - dx; // moving mouse right reduces width
+        newW = Math.max(MIN_WIDTH, rawW);
+        const deltaW = startW - newW; // how much width actually changed
+        newX = startX + deltaW;
+      }
+      if (includes(dir, 'n')) {
+        const rawH = startH - dy; // moving mouse down reduces height
+        newH = Math.max(MIN_HEIGHT, rawH);
+        const deltaH = startH - newH;
+        newY = startY + deltaH;
+      }
+
+      // Apply position first when needed
+      if (newX !== startX || newY !== startY) {
+        moveWindow(win.id, newX, newY);
+      }
       resizeWindow(win.id, newW, newH);
     };
+
     const onUp = () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
@@ -97,22 +131,17 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
     document.body.style.userSelect = 'none';
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
-  }, [win.id, win.width, win.height, win.maximized, resizeWindow, focusWindow]);
+  }, [win.id, win.width, win.height, win.x, win.y, win.maximized, resizeWindow, moveWindow, focusWindow]);
 
   const onClose = () => {
-    console.log('[Window] close clicked', win.id);
     closeWindow(win.id);
   };
   const onMinimize = () => {
-    console.log('[Window] minimize toggle', win.id);
     minimizeWindow(win.id);
   };
   const onToggleMax = () => {
-    console.log('[Window] maximize/restore', win.id);
     maximizeWindow(win.id);
   };
-
-  const toggleMaximize = () => maximizeWindow(win.id);
 
   if (win.minimized) return null;
 
@@ -138,12 +167,18 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
         <AppContent appId={win.appId} />
       </div>
       {!win.maximized && (
-        <div
-          aria-label="Resize window"
-          role="separator"
-          onMouseDown={onResizeMouseDown}
-          className="absolute bottom-2 right-2 h-4 w-4 cursor-se-resize rounded-md bg-white/20 hover:bg-white/30 active:bg-white/40"
-        />
+        <>
+          {/* Edges */}
+          <div aria-label="Resize north" role="separator" onMouseDown={onResizeMouseDown('n')} className="absolute top-0 left-0 h-2 w-full cursor-n-resize" />
+          <div aria-label="Resize east" role="separator" onMouseDown={onResizeMouseDown('e')} className="absolute top-0 right-0 h-full w-2 cursor-e-resize" />
+          <div aria-label="Resize south" role="separator" onMouseDown={onResizeMouseDown('s')} className="absolute bottom-0 left-0 h-2 w-full cursor-s-resize" />
+          <div aria-label="Resize west" role="separator" onMouseDown={onResizeMouseDown('w')} className="absolute top-0 left-0 h-full w-2 cursor-w-resize" />
+          {/* Corners */}
+          <div aria-label="Resize north-west" role="separator" onMouseDown={onResizeMouseDown('nw')} className="absolute -top-1 -left-1 h-4 w-4 cursor-nwse-resize" />
+          <div aria-label="Resize north-east" role="separator" onMouseDown={onResizeMouseDown('ne')} className="absolute -top-1 -right-1 h-4 w-4 cursor-nesw-resize" />
+          <div aria-label="Resize south-west" role="separator" onMouseDown={onResizeMouseDown('sw')} className="absolute -bottom-1 -left-1 h-4 w-4 cursor-nesw-resize" />
+          <div aria-label="Resize south-east" role="separator" onMouseDown={onResizeMouseDown('se')} className="absolute -bottom-1 -right-1 h-4 w-4 cursor-nwse-resize" />
+        </>
       )}
     </div>
   );
