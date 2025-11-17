@@ -9,11 +9,7 @@ const StartMenu: React.FC = () => {
   const openWindow = useWindowsStore((s) => s.openWindow);
   const startMenuOpen = useUIStore((s) => s.startMenuOpen);
   const closeStartMenu = useUIStore((s) => s.closeStartMenu);
-  const { email, login, register, logout, loading, error } = useAuthStore();
-  const [showAuth, setShowAuth] = useState(false);
-  const [mode, setMode] = useState<'login'|'register'>('login');
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPass, setAuthPass] = useState('');
+  const { email, logout } = useAuthStore();
 
   // Search query state (local) for RF3.3
   const [query, setQuery] = useState('');
@@ -40,18 +36,21 @@ const StartMenu: React.FC = () => {
     <AnimatePresence>
       {startMenuOpen && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.92, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
-          className="fixed bottom-20 left-1/2 w-[440px] -translate-x-1/2 rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/85 via-slate-900/80 to-slate-950/90 p-6 text-sm shadow-[0_35px_80px_rgba(0,0,0,0.6)] backdrop-blur-[24px] z-[1100]"
+          exit={{ opacity: 0, scale: 0.92, y: 20 }}
+          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+          className="fixed bottom-24 left-1/2 w-[480px] -translate-x-1/2 rounded-[36px] border border-white/15 bg-gradient-to-br from-slate-900/90 via-slate-900/85 to-slate-950/95 p-8 text-sm shadow-[0_40px_120px_rgba(0,0,0,0.7),0_0_80px_rgba(139,92,246,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-3xl z-[1100]"
           role="dialog"
           aria-modal="true"
           aria-label="Menu iniciar"
         >
-          {/* Search bar */}
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-xs text-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
-            <span className="text-lg drop-shadow" aria-hidden>🔍</span>
+          {/* Holographic glow */}
+          <div className="absolute inset-0 -z-10 rounded-[36px] bg-gradient-to-br from-violet-500/15 via-fuchsia-500/10 to-cyan-500/15 blur-3xl" />
+
+          {/* Search bar with futuristic style */}
+          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-gradient-to-r from-white/5 to-white/10 px-4 py-3 text-xs text-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] transition-all focus-within:border-violet-400/60 focus-within:shadow-[0_0_30px_rgba(139,92,246,0.3)]">
+            <span className="text-xl drop-shadow-[0_0_10px_rgba(139,92,246,0.6)]" aria-hidden>🔍</span>
             <input
               ref={inputRef}
               value={query}
@@ -64,7 +63,7 @@ const StartMenu: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setQuery('')}
-                className="rounded-md px-2 py-1 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/10"
+                className="rounded-lg px-2 py-1 text-[10px] font-medium text-white/70 transition-all hover:text-white hover:bg-white/15"
                 aria-label="Limpar pesquisa"
               >
                 Limpar
@@ -73,16 +72,16 @@ const StartMenu: React.FC = () => {
           </div>
 
           {/* Pinned / Filtered Apps */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-white/60">
-              <span>{query ? 'Resultados' : 'Pinned'}</span>
-              <button className="rounded-full border border-white/10 px-3 py-1 text-white/80 transition hover:border-white/40 hover:text-white" onClick={() => setQuery('')}>
+          <div className="mt-8">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-violet-300/70 font-semibold">
+              <span>{query ? 'Resultados' : 'Aplicações'}</span>
+              <button className="rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-white/80 transition-all hover:border-violet-400/60 hover:bg-violet-500/20 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]" onClick={() => setQuery('')}>
                 Todas
               </button>
             </div>
-            <div className="mt-3 grid grid-cols-3 gap-3 min-h-[180px]">
+            <div className="mt-4 grid grid-cols-3 gap-4 min-h-[200px]">
               {filteredApps.length === 0 && (
-                <div className="col-span-3 text-center text-xs text-white/50 py-6">Nenhuma app encontrada.</div>
+                <div className="col-span-3 text-center text-sm text-white/50 py-10">Nenhuma app encontrada.</div>
               )}
               {filteredApps.map((app) => (
                 <StartItem
@@ -100,98 +99,55 @@ const StartMenu: React.FC = () => {
             </div>
           </div>
 
-          {/* Recommended (unchanged) */}
-          <div className="mt-6">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-white/50">Recommended</div>
-            <div className="mt-3 space-y-3 text-sm">
+          {/* Recommended section with futuristic design */}
+          <div className="mt-8">
+            <div className="text-[10px] uppercase tracking-[0.25em] text-violet-300/60 font-semibold">Recentes</div>
+            <div className="mt-4 space-y-3 text-sm">
               {recommendedItems.map((item) => (
                 <button
                   key={item.title}
                   onClick={closeStartMenu}
-                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-left transition hover:-translate-y-0.5 hover:bg-white/20"
+                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-r from-white/5 to-white/10 px-4 py-3 text-left transition-all hover:-translate-y-1 hover:border-violet-400/40 hover:from-white/10 hover:to-white/15 hover:shadow-[0_10px_40px_rgba(139,92,246,0.3)]"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-lg shadow-inner" aria-hidden>{item.emoji}</div>
-                  <div>
-                    <div className="font-semibold text-white">{item.title}</div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/10 text-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]" aria-hidden>{item.emoji}</div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-white/95">{item.title}</div>
                     <div className="text-xs text-white/60">{item.detail}</div>
                   </div>
-                  <span className="ml-auto text-[11px] text-white/50">{item.time}</span>
+                  <span className="text-[10px] text-violet-300/50">{item.time}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Footer with account */}
-          <div className="mt-6 flex items-center justify-between text-xs text-white/80">
-            <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-white/15 via-white/5 to-transparent shadow-inner" />
-              <div>
-                <div className="font-semibold text-white">Windows Web</div>
-                <div className="text-white/60">{email ? `Signed in as ${email}` : 'Not signed in'}</div>
-              </div>
-            </div>
-            {email ? (
-              <button
-                onClick={async () => { await logout(); setShowAuth(false); }}
-                className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-white transition hover:border-white/40 hover:bg-white/15"
-              >
-                <span>Logout</span>
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => { setMode('login'); setShowAuth((v) => !v); }}
-                  className="rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-white transition hover:border-white/40 hover:bg-white/15"
-                >
-                  Sign in
-                </button>
-                <button
-                  onClick={() => { setMode('register'); setShowAuth((v) => !v); }}
-                  className="rounded-2xl border border-white/15 bg-white/5 px-3 py-2 text-white transition hover:border-white/40 hover:bg-white/15"
-                >
-                  Register
-                </button>
-              </div>
-            )}
-          </div>
-
-          {!email && showAuth && (
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const ok = mode === 'login' ? await login(authEmail, authPass) : await register(authEmail, authPass);
-                if (ok) { setShowAuth(false); setAuthEmail(''); setAuthPass(''); closeStartMenu(); }
-              }}
-              className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-3"
-            >
-              <div className="mb-2 text-[11px] uppercase tracking-[0.2em] text-white/60">{mode === 'login' ? 'Login' : 'Register'}</div>
-              <div className="grid gap-2">
-                <input
-                  type="email"
-                  required
-                  placeholder="Email"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                  className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none"
-                />
-                <input
-                  type="password"
-                  required
-                  placeholder="Password"
-                  value={authPass}
-                  onChange={(e) => setAuthPass(e.target.value)}
-                  className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none"
-                />
-                {error && <div className="text-[11px] text-rose-300">{error}</div>}
-                <div className="flex items-center gap-2">
-                  <button disabled={loading} className="rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20">
-                    {loading ? 'Please wait…' : mode === 'login' ? 'Login' : 'Create account'}
-                  </button>
-                  <button type="button" onClick={() => setShowAuth(false)} className="rounded-md px-3 py-2 text-sm text-white/70 hover:text-white">Cancel</button>
+          {/* Footer with user info and logout */}
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-violet-500/30 via-fuchsia-500/20 to-cyan-500/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center text-lg">
+                  👤
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-white/95">Windows Web</div>
+                  <div className="text-[11px] text-violet-300/70">
+                    {email || 'Não autenticado'}
+                  </div>
                 </div>
               </div>
-            </form>
-          )}
+              {email && (
+                <button
+                  onClick={async () => {
+                    await logout();
+                    closeStartMenu();
+                  }}
+                  className="flex items-center gap-2 rounded-2xl border border-rose-400/30 bg-gradient-to-r from-rose-500/10 to-red-500/10 px-4 py-2 text-xs font-medium text-rose-200 transition-all hover:border-rose-400/60 hover:from-rose-500/20 hover:to-red-500/20 hover:shadow-[0_0_20px_rgba(244,63,94,0.3)]"
+                >
+                  <span>Sair</span>
+                  <span className="text-sm">🚪</span>
+                </button>
+              )}
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -210,7 +166,6 @@ const StartItem: React.FC<{ label: string; description: string; glyph: string; q
   query,
   onClick,
 }) => {
-  // Highlight matched portion
   const lower = label.toLowerCase();
   const q = query.trim().toLowerCase();
   let highlightedLabel: React.ReactNode = label;
@@ -220,7 +175,7 @@ const StartItem: React.FC<{ label: string; description: string; glyph: string; q
     highlightedLabel = (
       <>
         {label.slice(0, start)}
-        <span className="text-sky-300">{label.slice(start, end)}</span>
+        <span className="text-violet-300">{label.slice(start, end)}</span>
         {label.slice(end)}
       </>
     );
@@ -228,14 +183,17 @@ const StartItem: React.FC<{ label: string; description: string; glyph: string; q
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-3 py-3 text-center transition hover:-translate-y-0.5 hover:bg-white/20 hover:shadow-[0_10px_30px_rgba(56,189,248,0.2)] focus:outline-none focus:ring-2 focus:ring-sky-300/50"
+      className="group relative flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 px-3 py-4 text-center transition-all hover:-translate-y-1 hover:border-violet-400/40 hover:from-white/10 hover:to-white/15 hover:shadow-[0_15px_50px_rgba(139,92,246,0.4)] focus:outline-none focus:ring-2 focus:ring-violet-400/60"
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-white/20 via-white/10 to-white/5 text-2xl drop-shadow shadow-inner" aria-hidden>
+      {/* Glow effect */}
+      <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-violet-500/0 to-fuchsia-500/0 blur-xl opacity-0 transition-opacity group-hover:from-violet-500/20 group-hover:to-fuchsia-500/20 group-hover:opacity-100" />
+
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 via-fuchsia-500/15 to-cyan-500/20 text-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] transition-all group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]" aria-hidden>
         {glyph}
       </div>
-      <div>
-        <div className="font-semibold text-white truncate" title={label}>{highlightedLabel}</div>
-        <div className="text-[11px] text-white/60 line-clamp-2" title={description}>{description}</div>
+      <div className="space-y-0.5">
+        <div className="font-semibold text-white/95 text-xs truncate w-full" title={label}>{highlightedLabel}</div>
+        <div className="text-[10px] text-white/50 line-clamp-2 font-light" title={description}>{description}</div>
       </div>
     </button>
   );
@@ -247,16 +205,20 @@ const ToggleButton: React.FC = () => {
   return (
     <button
       onClick={toggleStartMenu}
-      className="group flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/80 text-slate-900 shadow-[0_8px_24px_rgba(2,6,23,0.55)] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400/50"
+      className={`group flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-400/60 ${
+        startMenuOpen
+          ? 'border-violet-400/60 bg-gradient-to-br from-violet-500/30 to-fuchsia-500/20 shadow-[0_0_40px_rgba(139,92,246,0.6)]'
+          : 'border-white/20 bg-gradient-to-br from-white/15 to-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:from-white/25 hover:to-white/15 hover:shadow-[0_10px_40px_rgba(139,92,246,0.3)]'
+      }`}
       aria-label="Open Start"
       aria-expanded={startMenuOpen}
       aria-haspopup="dialog"
     >
-      <span className="grid grid-cols-2 gap-[2px] text-[0px]">
-        <span className="h-3 w-3 rounded-[4px] bg-slate-900 group-hover:bg-sky-600" />
-        <span className="h-3 w-3 rounded-[4px] bg-slate-900 group-hover:bg-sky-600" />
-        <span className="h-3 w-3 rounded-[4px] bg-slate-900 group-hover:bg-sky-600" />
-        <span className="h-3 w-3 rounded-[4px] bg-slate-900 group-hover:bg-sky-600" />
+      <span className="grid grid-cols-2 gap-[3px] text-[0px]">
+        <span className={`h-3.5 w-3.5 rounded-[5px] transition-all ${startMenuOpen ? 'bg-white' : 'bg-slate-200 group-hover:bg-violet-300'}`} />
+        <span className={`h-3.5 w-3.5 rounded-[5px] transition-all ${startMenuOpen ? 'bg-white' : 'bg-slate-200 group-hover:bg-fuchsia-300'}`} />
+        <span className={`h-3.5 w-3.5 rounded-[5px] transition-all ${startMenuOpen ? 'bg-white' : 'bg-slate-200 group-hover:bg-cyan-300'}`} />
+        <span className={`h-3.5 w-3.5 rounded-[5px] transition-all ${startMenuOpen ? 'bg-white' : 'bg-slate-200 group-hover:bg-pink-300'}`} />
       </span>
     </button>
   );

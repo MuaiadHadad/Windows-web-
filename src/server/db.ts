@@ -1,38 +1,44 @@
-import Database from 'better-sqlite3';
+import { Pool } from 'pg';
 import fs from 'fs';
 import path from 'path';
 
-const dataDir = path.join(process.cwd(), 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-const dbPath = path.join(dataDir, 'app.db');
-const db = new Database(dbPath);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Optional: ssl for cloud providers
+  ssl: process.env.PGSSL?.toLowerCase() === 'true' ? { rejectUnauthorized: false } : undefined,
+});
 
-db.exec(`
-CREATE TABLE IF NOT EXISTS users (
-  email TEXT PRIMARY KEY,
-  password TEXT NOT NULL,
-  state TEXT
-);
-`);
-
-export function getUser(email: string) {
-  const stmt = db.prepare('SELECT email, password, state FROM users WHERE email = ?');
-  return stmt.get(email) as { email: string; password: string; state: string | null } | undefined;
+let ensured = false;
+async function ensureSchema() {
+  if (ensured) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      email TEXT PRIMARY KEY,
+      password TEXT NOT NULL,
+      state JSONB
+    );
+  `);
+  ensured = true;
 }
 
-export function createUser(email: string, passwordHash: string) {
-  const stmt = db.prepare('INSERT INTO users (email, password, state) VALUES (?, ?, ?)');
-  stmt.run(email, passwordHash, JSON.stringify({}));
+export async function getUser(email: string) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT email, password, state FROM users WHERE email = $1', [email]);
+  return rows[0] as { email: string; password: string; state: any } | undefined;
 }
 
-export function updateState(email: string, state: any) {
-  const stmt = db.prepare('UPDATE users SET state = ? WHERE email = ?');
-  stmt.run(JSON.stringify(state ?? {}), email);
+export async function createUser(email: string, passwordHash: string) {
+  await ensureSchema();
+  await pool.query('INSERT INTO users (email, password, state) VALUES ($1, $2, $3)', [email, passwordHash, {}]);
 }
 
-export function getState(email: string) {
-  const stmt = db.prepare('SELECT state FROM users WHERE email = ?');
-  const row = stmt.get(email) as { state: string | null } | undefined;
-  try { return row?.state ? JSON.parse(row.state) : {}; } catch { return {}; }
+export async function updateState(email: string, state: any) {
+  await ensureSchema();
+  await pool.query('UPDATE users SET state = $1 WHERE email = $2', [state ?? {}, email]);
 }
 
+export async function getState(email: string) {
+  await ensureSchema();
+  const { rows } = await pool.query('SELECT state FROM users WHERE email = $1', [email]);
+  return rows[0]?.state ?? {};
+}

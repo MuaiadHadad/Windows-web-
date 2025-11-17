@@ -2,10 +2,13 @@ import type { AppProps } from 'next/app';
 import '../styles/globals.css';
 import React, { useEffect, useRef, useState } from 'react';
 import BootScreen from '../src/components/BootScreen';
+import { useAuthStore } from '../src/store/authStore';
+import LoginScreen from '../src/components/auth/LoginScreen';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [booting, setBooting] = useState(true);
   const startRef = useRef<number>(Date.now());
+  const email = useAuthStore((s) => s.email);
 
   useEffect(() => {
     const MIN_DURATION = 800; // ms
@@ -31,7 +34,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <BootScreen visible={booting} />
-      <Component {...pageProps} />
+      {!booting && !email ? (
+        <LoginScreen />
+      ) : (
+        <Component {...pageProps} />
+      )}
     </>
   );
 }

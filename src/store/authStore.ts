@@ -8,6 +8,7 @@ interface AuthState {
   login: (_email: string, _password: string) => Promise<boolean>;
   register: (_email: string, _password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -16,6 +17,7 @@ export const useAuthStore = create<AuthState>()(
       email: null,
       loading: false,
       error: null,
+      clearError: () => set({ error: null }),
       async login(email, password) {
         set({ loading: true, error: null });
         try {
@@ -24,15 +26,18 @@ export const useAuthStore = create<AuthState>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
           });
+          const body = await res.json().catch(() => ({}));
           if (!res.ok) {
-            const j = await res.json().catch(() => ({}));
-            set({ error: j.error || 'Login failed', loading: false });
+            let msg = body.error || 'Login falhou';
+            if (res.status === 401) msg = 'Credenciais inválidas ou utilizador não registado';
+            if (msg === 'Database unavailable') msg = 'Base de dados indisponível. Tente novamente em instantes.';
+            set({ error: msg, loading: false });
             return false;
           }
           set({ email, loading: false, error: null });
           return true;
         } catch (e) {
-          set({ error: 'Network error', loading: false });
+          set({ error: 'Erro de rede. Verifique a ligação.', loading: false });
           return false;
         }
       },
@@ -44,15 +49,18 @@ export const useAuthStore = create<AuthState>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
           });
+          const body = await res.json().catch(() => ({}));
           if (!res.ok) {
-            const j = await res.json().catch(() => ({}));
-            set({ error: j.error || 'Register failed', loading: false });
+            let msg = body.error || 'Registo falhou';
+            if (res.status === 409) msg = 'Utilizador já existe';
+            if (msg === 'Database unavailable') msg = 'Base de dados indisponível. Tente novamente.';
+            set({ error: msg, loading: false });
             return false;
           }
           set({ email, loading: false, error: null });
           return true;
         } catch (e) {
-          set({ error: 'Network error', loading: false });
+          set({ error: 'Erro de rede. Verifique a ligação.', loading: false });
           return false;
         }
       },

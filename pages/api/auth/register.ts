@@ -7,12 +7,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
   try {
-    const existing = getUser(email);
+    const existing = await getUser(email);
     if (existing) return res.status(409).json({ error: 'User already exists' });
     const hash = await bcrypt.hash(password, 10);
-    createUser(email, hash);
+    await createUser(email, hash);
     return res.status(201).json({ email });
-  } catch (e) {
-    return res.status(500).json({ error: 'Server error' });
+  } catch (e: any) {
+    console.error('[api/auth/register] Server error:', e);
+    const msg = e?.message?.includes('ECONNREFUSED') ? 'Database unavailable' : 'Server error';
+    return res.status(500).json({ error: msg });
   }
 }
