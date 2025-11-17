@@ -1,13 +1,7 @@
 {
-  "root": true,
-  "extends": ["next/core-web-vitals", "eslint:recommended"],
-  "parserOptions": {"ecmaVersion": 2022, "sourceType": "module"},
+  "extends": "next/core-web-vitals",
   "rules": {
-    "semi": ["error", "always"],
-    "quotes": ["error", "single"],
-    "indent": ["error", 2],
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "@next/next/no-img-element": "off"
+    "indent": "off"
   }
 }
 

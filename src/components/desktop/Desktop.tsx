@@ -4,29 +4,22 @@ import Window from '../window/Window';
 import { useWindowsStore } from '../../store/windowsStore';
 import StartMenu from '../taskbar/StartMenu';
 import { APP_REGISTRY, getAppMeta } from '../../apps/registry';
+import { usePreferencesStore } from '../../store/preferencesStore';
 
 const Desktop: React.FC = () => {
   const windows = useWindowsStore((s) => s.windows);
-  const { darkTheme, liveWallpapers } = usePreferencesStore();
+  const { darkTheme } = usePreferencesStore(); // removido liveWallpapers
 
   const wallpaperStyle: React.CSSProperties = {
     backgroundImage: darkTheme
       ? [
-          'radial-gradient(circle at 15% 25%, rgba(255,255,255,0.28), transparent 45%)',
-          'radial-gradient(circle at 85% 15%, rgba(56,189,248,0.35), transparent 55%)',
-          'radial-gradient(circle at 50% 120%, rgba(59,130,246,0.35), transparent 55%)',
-          'linear-gradient(135deg, #050915 0%, #05081a 45%, #0f172a 100%)',
+          'radial-gradient(circle at 18% 24%, rgba(255,255,255,0.24), transparent 42%)',
+          'radial-gradient(circle at 86% 10%, rgba(56,189,248,0.45), transparent 48%)',
+          'radial-gradient(circle at 52% 118%, rgba(94,234,212,0.35), transparent 52%)',
+          'linear-gradient(135deg, #050915 0%, #080e1f 45%, #0f172a 100%)',
         ].join(', ')
       : 'linear-gradient(135deg, #dbeafe 0%, #f1f5f9 50%, #e0f2fe 100%)',
     transition: 'background 0.6s ease',
-  };
-
-  const wallpaperStyle: React.CSSProperties = {
-    backgroundImage:
-      'radial-gradient(circle at 18% 24%, rgba(255,255,255,0.24), transparent 42%), ' +
-      'radial-gradient(circle at 86% 10%, rgba(56,189,248,0.45), transparent 48%), ' +
-      'radial-gradient(circle at 52% 118%, rgba(94,234,212,0.35), transparent 52%), ' +
-      'linear-gradient(135deg, #050915 0%, #080e1f 45%, #0f172a 100%)',
   };
 
   return (
@@ -34,6 +27,7 @@ const Desktop: React.FC = () => {
       className="relative flex h-screen w-screen select-none flex-col overflow-hidden text-white"
       style={wallpaperStyle}
     >
+      {/* Decorative overlays */}
       <div className="pointer-events-none absolute inset-0 opacity-80" aria-hidden>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(14,165,233,0.16),transparent_48%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_84%_-6%,rgba(168,85,247,0.28),transparent_52%)]" />
@@ -48,6 +42,7 @@ const Desktop: React.FC = () => {
         />
         <div className="absolute inset-x-6 top-6 h-48 rounded-full bg-gradient-to-r from-white/10 via-white/5 to-white/0 blur-3xl" />
       </div>
+      {/* Desktop icons layer */}
       <div className="relative z-10 flex flex-1 flex-col p-8">
         <div className="grid w-max grid-cols-2 gap-8 drop-shadow-[0_12px_50px_rgba(0,0,0,0.35)]">
           {Object.values(APP_REGISTRY).map((meta) => (
@@ -56,11 +51,12 @@ const Desktop: React.FC = () => {
         </div>
       </div>
 
-      {/* Windows */}
+      {/* Windows render above icons via inline zIndex */}
       {windows.map((w) => (
         <Window key={w.id} win={w} />
       ))}
 
+      {/* Taskbar & StartMenu have their own z-index */}
       <Taskbar />
       <StartMenu />
     </div>

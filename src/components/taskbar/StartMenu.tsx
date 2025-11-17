@@ -17,7 +17,10 @@ const StartMenu: React.FC = () => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
           transition={{ duration: 0.15, ease: 'easeOut' }}
-          className="fixed bottom-20 left-1/2 w-[440px] -translate-x-1/2 rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/85 via-slate-900/80 to-slate-950/90 p-6 text-sm shadow-[0_35px_80px_rgba(0,0,0,0.6)] backdrop-blur-[24px]"
+          className="fixed bottom-20 left-1/2 w-[440px] -translate-x-1/2 rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/85 via-slate-900/80 to-slate-950/90 p-6 text-sm shadow-[0_35px_80px_rgba(0,0,0,0.6)] backdrop-blur-[24px] z-[1100]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu iniciar"
         >
           <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-xs text-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
             <span className="text-lg drop-shadow">🔍</span>
@@ -135,4 +138,3 @@ const ToggleButton: React.FC = () => {
 };
 
 export default Object.assign(StartMenu, { ToggleButton });
-

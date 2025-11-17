@@ -1,17 +1,13 @@
 import React from 'react';
 import { usePreferencesStore } from '../../store/preferencesStore';
 
+// Unificar definição de toggles (remover duplicado sem chave) e manter chaves para mapear store
 const toggles = [
   { key: 'focusAssist', label: 'Focus Assist', description: 'Silence notifications during work' },
   { key: 'darkTheme', label: 'Dark Theme', description: 'Always use the luminous dark shell' },
   { key: 'liveWallpapers', label: 'Live Wallpapers', description: 'Animate the desktop background' },
+  { key: 'clock24h', label: '24h Clock', description: 'Show time in 24-hour format' },
 ] as const;
-
-const toggles = [
-  { label: 'Focus Assist', description: 'Silence notifications during work' },
-  { label: 'Dark Theme', description: 'Always use the luminous dark shell' },
-  { label: 'Live Wallpapers', description: 'Animate the desktop background' },
-];
 
 const SettingsApp: React.FC = () => {
   const prefs = usePreferencesStore();
@@ -23,21 +19,26 @@ const SettingsApp: React.FC = () => {
         <p className="text-white/70">Pick the vibe that matches your mood.</p>
       </div>
       <div className="space-y-3">
-        {toggles.map((toggle, index) => (
+        {toggles.map((t) => (
           <label
-            key={toggle.label}
+            key={t.key}
             className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
           >
             <div>
-              <div className="font-semibold text-white">{toggle.label}</div>
-              <div className="text-xs text-white/60">{toggle.description}</div>
+              <div className="font-semibold text-white">{t.label}</div>
+              <div className="text-xs text-white/60">{t.description}</div>
             </div>
-            <input type="checkbox" defaultChecked={index % 2 === 0} className="h-5 w-10 accent-sky-400" />
+            <input
+              type="checkbox"
+              checked={prefs[t.key]}
+              onChange={() => prefs.toggle(t.key)}
+              className="h-5 w-10 accent-sky-400"
+            />
           </label>
         ))}
       </div>
       <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 p-4 text-xs text-white/70 backdrop-blur-sm">
-        Looking for more? System preferences sync across every window.
+        Preferences are stored locally and will apply instantly across all windows.
       </div>
     </div>
   );

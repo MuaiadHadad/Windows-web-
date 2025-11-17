@@ -5,7 +5,8 @@ export interface PreferencesState {
   focusAssist: boolean;
   darkTheme: boolean;
   liveWallpapers: boolean;
-  toggle: (key: keyof Omit<PreferencesState, 'toggle'>) => void;
+  clock24h: boolean;
+  toggle: (_key: keyof Omit<PreferencesState, 'toggle'>) => void; // renomeado
 }
 
 export const usePreferencesStore = create<PreferencesState>()(
@@ -14,9 +15,9 @@ export const usePreferencesStore = create<PreferencesState>()(
       focusAssist: true,
       darkTheme: true,
       liveWallpapers: false,
-      toggle: (key) => set((s) => ({ [key]: !s[key] } as any)),
+      clock24h: false,
+      toggle: (_key) => set((s) => ({ [_key]: !s[_key] } as any)),
     }),
     { name: 'winweb-preferences' }
   )
 );
-
