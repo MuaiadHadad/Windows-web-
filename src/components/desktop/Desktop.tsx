@@ -13,11 +13,21 @@ const Desktop: React.FC = () => {
   const wallpaperStyle: React.CSSProperties = {
     backgroundImage: darkTheme
       ? [
+<<<<<<< HEAD
           'radial-gradient(circle at 18% 24%, rgba(255,255,255,0.24), transparent 42%)',
           'radial-gradient(circle at 86% 10%, rgba(56,189,248,0.45), transparent 48%)',
           'radial-gradient(circle at 52% 118%, rgba(94,234,212,0.35), transparent 52%)',
           'linear-gradient(135deg, #050915 0%, #080e1f 45%, #0f172a 100%)',
         ].join(', ')
+=======
+        'radial-gradient(circle at 15% 25%, rgba(255,255,255,0.28), transparent 45%)',
+        'radial-gradient(circle at 85% 15%, rgba(56,189,248,0.35), transparent 55%)',
+        'radial-gradient(circle at 50% 120%, rgba(59,130,246,0.35), transparent 55%)',
+        liveWallpapers
+          ? 'linear-gradient(135deg, #050915 0%, #081025 45%, #0b122e 100%)'
+          : 'linear-gradient(135deg, #050915 0%, #05081a 45%, #0f172a 100%)',
+      ].join(', ')
+>>>>>>> origin/main
       : 'linear-gradient(135deg, #dbeafe 0%, #f1f5f9 50%, #e0f2fe 100%)',
     transition: 'background 0.6s ease',
   };
