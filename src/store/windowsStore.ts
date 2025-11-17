@@ -96,7 +96,7 @@ export const useWindowsStore = create<WindowsState>()(
     {
       name: 'windows-layouts',
       storage: typeof window !== 'undefined' ? createJSONStorage(() => sessionStorage) : undefined,
-      partialize: (state) => ({ lastLayouts: state.lastLayouts }),
+      partialize: (state) => ({ lastLayouts: state.lastLayouts, windows: state.windows }),
     }
   )
 );

@@ -7,6 +7,7 @@ import { APP_REGISTRY, getAppMeta } from '../../apps/registry';
 import { usePreferencesStore } from '../../store/preferencesStore';
 import { useUIStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
+import { useNotesStore } from '../../store/notesStore';
 
 const Desktop: React.FC = () => {
   const windows = useWindowsStore((s) => s.windows);
@@ -15,6 +16,8 @@ const Desktop: React.FC = () => {
   const authEmail = useAuthStore((s) => s.email);
   const lastLayouts = useWindowsStore((s) => s.lastLayouts);
   const setLastLayouts = useWindowsStore((s) => s.setLastLayouts);
+  const notesText = useNotesStore((s) => s.text);
+  const setNotesText = useNotesStore((s) => s.setText);
 
   const darkBg = [
     'radial-gradient(circle at 18% 24%, rgba(255,255,255,0.24), transparent 42%)',
@@ -55,11 +58,14 @@ const Desktop: React.FC = () => {
         if (st.lastLayouts) {
           setLastLayouts(st.lastLayouts);
         }
+        if (typeof st.notes === 'string') {
+          setNotesText(st.notes);
+        }
       } catch {}
     }
     load();
     return () => { aborted = true; };
-  }, [authEmail, setLastLayouts]);
+  }, [authEmail, setLastLayouts, setNotesText]);
 
   // Debounced push to backend when state changes
   const debounceRef = useRef<number | null>(null);
@@ -69,14 +75,14 @@ const Desktop: React.FC = () => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(async () => {
       try {
-        const state = { preferences: { focusAssist: prefs.focusAssist, darkTheme: prefs.darkTheme, liveWallpapers: prefs.liveWallpapers, clock24h: prefs.clock24h, wallpaper: prefs.wallpaper }, lastLayouts };
+        const state = { preferences: { focusAssist: prefs.focusAssist, darkTheme: prefs.darkTheme, liveWallpapers: prefs.liveWallpapers, clock24h: prefs.clock24h, wallpaper: prefs.wallpaper }, lastLayouts, notes: notesText };
         await fetch('/api/user/state', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-user-email': authEmail }, body: JSON.stringify({ state }) });
       } catch {}
     }, 500);
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [authEmail, prefs.focusAssist, prefs.darkTheme, prefs.liveWallpapers, prefs.clock24h, prefs.wallpaper, lastLayouts]);
+  }, [authEmail, prefs.focusAssist, prefs.darkTheme, prefs.liveWallpapers, prefs.clock24h, prefs.wallpaper, lastLayouts, notesText]);
 
   return (
     <div

@@ -1,12 +1,16 @@
 /* eslint-disable indent */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWindowsStore } from '../../store/windowsStore';
 import type { WindowInstance } from '../../types/window';
-import NotesApp from '../../apps/notes/NotesApp';
-import FilesApp from '../../apps/files/FilesApp';
-import SettingsApp from '../../apps/settings/SettingsApp';
+import dynamic from 'next/dynamic';
 import { getAppMeta } from '../../apps/registry';
+import interact from 'interactjs';
+
+// Lazy-load app content to reduce initial bundle (RNF1.1)
+const NotesApp = dynamic(() => import('../../apps/notes/NotesApp'), { ssr: false, loading: () => <div className="p-4 text-white/70">Loading…</div> });
+const FilesApp = dynamic(() => import('../../apps/files/FilesApp'), { ssr: false, loading: () => <div className="p-4 text-white/70">Loading…</div> });
+const SettingsApp = dynamic(() => import('../../apps/settings/SettingsApp'), { ssr: false, loading: () => <div className="p-4 text-white/70">Loading…</div> });
 
 const AppContent: React.FC<{ appId: string }> = ({ appId }) => {
   switch (appId) {
@@ -52,96 +56,59 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   const focusWindow = useWindowsStore((s) => s.focusWindow);
   const meta = getAppMeta(win.appId);
 
-  const onDragMouseDown = useCallback((e: React.MouseEvent) => {
-    if (win.maximized) return; // skip dragging when maximized
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const initialX = win.x;
-    const initialY = win.y;
-    focusWindow(win.id);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-    const onMove = (ev: MouseEvent) => {
-      const dx = ev.clientX - startX;
-      const dy = ev.clientY - startY;
-      moveWindow(win.id, initialX + dx, initialY + dy);
+  // Setup interact.js for drag & resize (RT4)
+  useEffect(() => {
+    const node = wrapperRef.current;
+    if (!node) return;
+
+    if (win.maximized) {
+      interact(node).unset();
+      return;
+    }
+
+    interact(node)
+      .draggable({
+        listeners: {
+          start: () => focusWindow(win.id),
+          move: (event) => {
+            const x = (win.x ?? 0) + event.dx;
+            const y = (win.y ?? 0) + event.dy;
+            moveWindow(win.id, x, y);
+          },
+        },
+        inertia: false,
+      })
+      .resizable({
+        edges: { left: true, right: true, bottom: true, top: true },
+        listeners: {
+          start: () => focusWindow(win.id),
+          move: (event) => {
+            const { width, height } = event.rect;
+            // Clamp min size
+            const newW = Math.max(MIN_WIDTH, Math.round(width));
+            const newH = Math.max(MIN_HEIGHT, Math.round(height));
+            // Adjust position when resizing from north/west
+            const deltaLeft = event.deltaRect?.left ?? 0;
+            const deltaTop = event.deltaRect?.top ?? 0;
+            if (deltaLeft || deltaTop) {
+              moveWindow(win.id, win.x + deltaLeft, win.y + deltaTop);
+            }
+            resizeWindow(win.id, newW, newH);
+          },
+        },
+        inertia: false,
+      });
+
+    return () => {
+      interact(node).unset();
     };
-    const onUp = () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      document.body.style.userSelect = '';
-    };
-    document.body.style.userSelect = 'none';
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, [win.id, win.x, win.y, win.maximized, moveWindow, focusWindow]);
+  }, [wrapperRef, win.id, win.x, win.y, win.width, win.height, win.maximized, moveWindow, resizeWindow, focusWindow]);
 
-  const onResizeMouseDown = useCallback((dir: ResizeDir) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (win.maximized) return; // skip resizing when maximized
-    const startClientX = e.clientX;
-    const startClientY = e.clientY;
-    const startW = win.width;
-    const startH = win.height;
-    const startX = win.x;
-    const startY = win.y;
-    focusWindow(win.id);
-
-    const onMove = (ev: MouseEvent) => {
-      const dx = ev.clientX - startClientX;
-      const dy = ev.clientY - startClientY;
-
-      let newW = startW;
-      let newH = startH;
-      let newX = startX;
-      let newY = startY;
-
-      const includes = (d: ResizeDir, ch: 'n'|'e'|'s'|'w') => d.includes(ch);
-
-      if (includes(dir, 'e')) {
-        newW = Math.max(MIN_WIDTH, startW + dx);
-      }
-      if (includes(dir, 's')) {
-        newH = Math.max(MIN_HEIGHT, startH + dy);
-      }
-      if (includes(dir, 'w')) {
-        const rawW = startW - dx; // moving mouse right reduces width
-        newW = Math.max(MIN_WIDTH, rawW);
-        const deltaW = startW - newW; // how much width actually changed
-        newX = startX + deltaW;
-      }
-      if (includes(dir, 'n')) {
-        const rawH = startH - dy; // moving mouse down reduces height
-        newH = Math.max(MIN_HEIGHT, rawH);
-        const deltaH = startH - newH;
-        newY = startY + deltaH;
-      }
-
-      // Apply position first when needed
-      if (newX !== startX || newY !== startY) {
-        moveWindow(win.id, newX, newY);
-      }
-      resizeWindow(win.id, newW, newH);
-    };
-
-    const onUp = () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      document.body.style.userSelect = '';
-    };
-    document.body.style.userSelect = 'none';
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, [win.id, win.width, win.height, win.x, win.y, win.maximized, resizeWindow, moveWindow, focusWindow]);
-
-  const onClose = () => {
-    closeWindow(win.id);
-  };
-  const onMinimize = () => {
-    minimizeWindow(win.id);
-  };
-  const onToggleMax = () => {
-    maximizeWindow(win.id);
-  };
+  const onClose = () => closeWindow(win.id);
+  const onMinimize = () => minimizeWindow(win.id);
+  const onToggleMax = () => maximizeWindow(win.id);
 
   if (win.minimized) return null;
 
@@ -149,7 +116,6 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
     <div className="flex h-full w-full flex-col overflow-hidden rounded-[18px] border border-white/15 bg-gradient-to-br from-slate-900/80 via-slate-900/70 to-slate-950/85 shadow-[0_30px_80px_rgba(2,6,23,0.65)] backdrop-blur-[20px] ring-1 ring-white/5">
       <div
         className="window-handle relative flex h-11 items-center justify-between gap-2 border-b border-white/10 bg-gradient-to-r from-white/15 via-white/5 to-transparent px-3 text-sm font-medium text-white select-none"
-        onMouseDown={onDragMouseDown}
         onDoubleClick={onToggleMax}
       >
         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -163,23 +129,9 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
           <WindowControlButton label="Close" color="text-rose-300" glyph="✕" onClick={onClose} />
         </div>
       </div>
-      <div className="flex-1 overflow-auto bg-gradient-to-br from-slate-900/70 via-slate-950/60 to-slate-950/80" onMouseDown={() => focusWindow(win.id)}>
+      <div className="flex-1 overflow-auto bg-gradient-to-br from-slate-900/70 via-slate-950/60 to-slate-950/80" onMouseDown={() => focusWindow(win.id)} onTouchStart={() => focusWindow(win.id)}>
         <AppContent appId={win.appId} />
       </div>
-      {!win.maximized && (
-        <>
-          {/* Edges */}
-          <div aria-label="Resize north" role="separator" onMouseDown={onResizeMouseDown('n')} className="absolute top-0 left-0 h-2 w-full cursor-n-resize" />
-          <div aria-label="Resize east" role="separator" onMouseDown={onResizeMouseDown('e')} className="absolute top-0 right-0 h-full w-2 cursor-e-resize" />
-          <div aria-label="Resize south" role="separator" onMouseDown={onResizeMouseDown('s')} className="absolute bottom-0 left-0 h-2 w-full cursor-s-resize" />
-          <div aria-label="Resize west" role="separator" onMouseDown={onResizeMouseDown('w')} className="absolute top-0 left-0 h-full w-2 cursor-w-resize" />
-          {/* Corners */}
-          <div aria-label="Resize north-west" role="separator" onMouseDown={onResizeMouseDown('nw')} className="absolute -top-1 -left-1 h-4 w-4 cursor-nwse-resize" />
-          <div aria-label="Resize north-east" role="separator" onMouseDown={onResizeMouseDown('ne')} className="absolute -top-1 -right-1 h-4 w-4 cursor-nesw-resize" />
-          <div aria-label="Resize south-west" role="separator" onMouseDown={onResizeMouseDown('sw')} className="absolute -bottom-1 -left-1 h-4 w-4 cursor-nesw-resize" />
-          <div aria-label="Resize south-east" role="separator" onMouseDown={onResizeMouseDown('se')} className="absolute -bottom-1 -right-1 h-4 w-4 cursor-nwse-resize" />
-        </>
-      )}
     </div>
   );
 
@@ -193,6 +145,7 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
         style={{ zIndex: win.zIndex }}
         className="absolute inset-0 pointer-events-auto"
         onMouseDown={() => focusWindow(win.id)}
+        onTouchStart={() => focusWindow(win.id)}
         data-win-id={win.id}
       >
         <Shell />
@@ -203,9 +156,11 @@ const Window: React.FC<{ win: WindowInstance }> = ({ win }) => {
   return (
     <AnimatePresence>
       <div
+        ref={wrapperRef}
         style={{ left: win.x, top: win.y, zIndex: win.zIndex, width: win.width, height: win.height }}
         className="absolute pointer-events-auto"
         onMouseDown={() => focusWindow(win.id)}
+        onTouchStart={() => focusWindow(win.id)}
         data-win-id={win.id}
       >
         <motion.div

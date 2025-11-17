@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { createCanvas } = require('canvas');
-const sizes = [192, 512];
+const sizes = [180, 192, 256, 384, 512];
 for (const size of sizes) {
   const canvas = createCanvas(size, size);
   const ctx = canvas.getContext('2d');
@@ -18,4 +18,3 @@ for (const size of sizes) {
   fs.writeFileSync(outPath, canvas.toBuffer('image/png'));
   console.log('Wrote', outPath);
 }
-
