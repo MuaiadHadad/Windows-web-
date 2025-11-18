@@ -16,15 +16,22 @@ export interface PreferencesState {
 
 export const usePreferencesStore = create<PreferencesState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       focusAssist: true,
       darkTheme: true,
       liveWallpapers: false,
       clock24h: false,
       wallpaper: 'dark',
       toggle: (_key) => set((s) => ({ [_key]: !s[_key] } as any)),
-      setWallpaper: (wallpaper) => set({ wallpaper }),
-      toggleTheme: () => set((state) => ({ darkTheme: !state.darkTheme })),
+      setWallpaper: (wallpaper) => {
+        console.log('📝 setWallpaper called with:', wallpaper);
+        set({ wallpaper });
+        console.log('📝 wallpaper set to:', get().wallpaper);
+      },
+      toggleTheme: () => {
+        set((s) => ({ darkTheme: !s.darkTheme }));
+        console.log('[Theme] darkTheme now:', get().darkTheme ? 'dark' : 'light');
+      },
     }),
     { name: 'winweb-preferences' }
   )

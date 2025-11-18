@@ -4,11 +4,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import BootScreen from '../src/components/BootScreen';
 import { useAuthStore } from '../src/store/authStore';
 import LoginScreen from '../src/components/auth/LoginScreen';
+import { usePreferencesStore } from '../src/store/preferencesStore';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [booting, setBooting] = useState(true);
   const startRef = useRef<number>(Date.now());
   const email = useAuthStore((s) => s.email);
+  const darkTheme = usePreferencesStore((s) => s.darkTheme);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const el = document.documentElement;
+    if (darkTheme) el.classList.add('dark');
+    else el.classList.remove('dark');
+    console.log('[Theme] Applied class:', darkTheme ? 'dark' : 'light');
+  }, [darkTheme]);
 
   useEffect(() => {
     const MIN_DURATION = 800; // ms

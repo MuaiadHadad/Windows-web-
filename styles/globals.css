@@ -2,90 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#__next {
-  height: 100%;
+:root {
+  --color-fg: #0f172a;
+  --color-text: #0f172a;
+  --color-text-invert: #f8fafc;
+  --desktop-bg-dark: radial-gradient(circle at 22% 18%, rgba(255,255,255,0.16), transparent 42%),
+    radial-gradient(circle at 78% 0%, rgba(14,165,233,0.35), transparent 46%),
+    radial-gradient(circle at 12% 80%, rgba(236,72,153,0.25), transparent 48%),
+    linear-gradient(135deg,#030712,#0b1225 52%,#020617);
+  --desktop-bg-light: radial-gradient(circle at 30% 40%, rgba(139,92,246,0.15) 0%, transparent 55%),
+    radial-gradient(circle at 70% 60%, rgba(59,130,246,0.18) 0%, transparent 50%),
+    linear-gradient(135deg,#eef2ff,#e0e7ff 45%,#f0f9ff);
+}
+
+html.dark {
+  --color-fg: #f8fafc;
+  --color-text: #f8fafc;
+}
+
+html.dark body {
+  background: var(--desktop-bg-dark) !important;
+  color: var(--color-text-invert);
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI Variable', 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.16), transparent 42%),
-    radial-gradient(circle at 78% 0%, rgba(14, 165, 233, 0.35), transparent 46%),
-    radial-gradient(circle at 12% 80%, rgba(236, 72, 153, 0.25), transparent 48%),
-    linear-gradient(135deg, #030712, #0b1225 52%, #020617);
-  color: #f8fafc;
+  font-family: 'Segoe UI Variable','Segoe UI','Inter',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  background: var(--desktop-bg-dark);
+  color: var(--color-text-invert);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+html:not(.dark) body {
+  background: var(--desktop-bg-light);
+  color: var(--color-text);
 }
 
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 10% 24%, rgba(59, 130, 246, 0.2), transparent 42%),
-    radial-gradient(circle at 75% 4%, rgba(168, 85, 247, 0.25), transparent 40%),
-    radial-gradient(circle at 40% 88%, rgba(52, 211, 153, 0.14), transparent 38%);
-  opacity: 0.55;
+  background: radial-gradient(circle at 10% 24%, rgba(59,130,246,0.18), transparent 42%),
+    radial-gradient(circle at 75% 4%, rgba(168,85,247,0.22), transparent 40%),
+    radial-gradient(circle at 40% 88%, rgba(52,211,153,0.12), transparent 38%);
+  opacity: 0.50;
   pointer-events: none;
   z-index: -1;
+}
+
+html:not(.dark) body::before {
+  background: radial-gradient(circle at 15% 18%, rgba(139,92,246,0.25), transparent 50%),
+    radial-gradient(circle at 80% 12%, rgba(56,189,248,0.28), transparent 55%),
+    radial-gradient(circle at 42% 82%, rgba(236,72,153,0.18), transparent 58%);
+  opacity: 0.35;
 }
 
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 40 40"><path fill="%23ffffff0d" d="M0 0h2v2H0zM20 20h2v2h-2zM10 30h2v2h-2zM30 10h2v2h-2z"/></svg>');
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 40 40'><path fill='%23ffffff0d' d='M0 0h2v2H0zM20 20h2v2h-2zM10 30h2v2h-2zM30 10h2v2h-2z'/></svg>");
   mix-blend-mode: soft-light;
-  opacity: 0.6;
+  opacity: 0.55;
   pointer-events: none;
   z-index: -1;
 }
 
-::selection {
-  background: rgba(56, 189, 248, 0.35);
-  color: #fff;
-}
-
-body {
-  margin: 0;
-  font-family: 'Segoe UI Variable', 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.25), transparent 45%),
-    radial-gradient(circle at 90% 0%, rgba(56, 189, 248, 0.35), transparent 50%),
-    linear-gradient(135deg, #030712, #0f172a 60%, #020617);
-  color: #f8fafc;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.2), transparent 45%),
-    radial-gradient(circle at 70% 0%, rgba(192, 132, 252, 0.25), transparent 45%);
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: -1;
+html:not(.dark) body::after {
+  opacity: 0.35;
+  mix-blend-mode: normal;
 }
 
 ::selection {
-  background: rgba(56, 189, 248, 0.35);
+  background: rgba(56,189,248,0.35);
   color: #fff;
 }
 
 @keyframes pulseDots {
-  0% {
-    filter: brightness(1);
-    transform: scale(1);
-  }
-  50% {
-    filter: brightness(1.3);
-    transform: scale(1.05);
-  }
-  100% {
-    filter: brightness(1);
-    transform: scale(1);
-  }
+  0% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(1.3); transform: scale(1.05); }
+  100% { filter: brightness(1); transform: scale(1); }
 }

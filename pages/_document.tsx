@@ -16,6 +16,7 @@ class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
+          <script dangerouslySetInnerHTML={{ __html: `try{var p=localStorage.getItem('winweb-preferences');if(p){var j=JSON.parse(p);if(j?.state?.darkTheme){document.documentElement.classList.add('dark');}}}catch(e){}` }} />
         </body>
       </Html>
     );

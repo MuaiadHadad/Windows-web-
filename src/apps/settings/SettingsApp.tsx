@@ -36,7 +36,9 @@ const SettingsApp: React.FC = () => {
 
       {/* Theme Toggle Section */}
       <div className="space-y-4">
-        <div className="text-[10px] uppercase tracking-[0.25em] text-violet-300/70 font-semibold">Tema</div>
+        <div className="text-[10px] uppercase tracking-[0.25em] text-violet-300/70 font-semibold">
+          Tema (Current: {darkTheme ? 'DARK' : 'LIGHT'})
+        </div>
         <div className="flex items-center justify-between p-5 rounded-2xl border border-white/15 bg-gradient-to-r from-white/5 to-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-amber-500/30 to-orange-500/20 flex items-center justify-center text-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_0_20px_rgba(251,191,36,0.3)]">
@@ -48,9 +50,7 @@ const SettingsApp: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={() => {
-              toggleTheme();
-            }}
+            onClick={toggleTheme}
             className={`relative h-8 w-14 rounded-full border-2 transition-all ${
               darkTheme
                 ? 'border-violet-400/60 bg-gradient-to-r from-violet-500/40 to-fuchsia-500/30 shadow-[0_0_20px_rgba(139,92,246,0.4)]'
@@ -73,7 +73,13 @@ const SettingsApp: React.FC = () => {
           {wallpapers.map((w) => (
             <button
               key={w.id}
-              onClick={() => setWallpaper(w.id)}
+              onClick={() => {
+                console.log('🖼️ Changing wallpaper from', wallpaper, 'to', w.id);
+                setWallpaper(w.id);
+                setTimeout(() => {
+                  console.log('🖼️ Wallpaper should now be:', w.id);
+                }, 100);
+              }}
               className={`group relative flex flex-col items-center gap-3 rounded-2xl border-2 p-3 transition-all hover:-translate-y-1 ${
                 wallpaper === w.id
                   ? 'border-violet-400/80 bg-gradient-to-br from-white/10 to-white/5 shadow-[0_0_30px_rgba(139,92,246,0.5)]'

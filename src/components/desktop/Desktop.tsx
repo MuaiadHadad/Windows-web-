@@ -26,10 +26,10 @@ const Desktop: React.FC = () => {
   const lightBg = 'radial-gradient(circle at 30% 40%, rgba(139, 92, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.2) 0%, transparent 50%), linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #dbeafe 100%)';
   const oceanBg = 'radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.4) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(14, 165, 233, 0.35) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.3) 0%, transparent 60%), linear-gradient(135deg, #0c1222 0%, #0a1628 30%, #0d1b2a 60%, #0f1419 100%)';
 
-  const selectedBg = wallpaper === 'dark' ? darkBg : wallpaper === 'light' ? lightBg : oceanBg;
+  const selectedBg = wallpaper === 'dark' ? darkBg : wallpaper === 'light' ? lightBg : wallpaper === 'ocean' ? oceanBg : (darkTheme ? darkBg : lightBg);
 
   const wallpaperStyle: React.CSSProperties = {
-    backgroundImage: selectedBg || (darkTheme ? darkBg : lightBg),
+    backgroundImage: selectedBg,
     transition: 'background 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
@@ -77,16 +77,18 @@ const Desktop: React.FC = () => {
     };
   }, [authEmail, prefs.focusAssist, prefs.darkTheme, prefs.liveWallpapers, prefs.clock24h, prefs.wallpaper, lastLayouts, notesText]);
 
+  const themeClass = darkTheme ? 'bg-[#0a0a1f] text-white' : 'bg-[#f0f4ff] text-black';
+
   return (
     <div
-      className="relative flex h-screen w-screen select-none flex-col overflow-hidden text-white"
+      className={`relative flex h-screen w-screen select-none flex-col overflow-hidden ${darkTheme ? 'text-white' : 'text-slate-800'} transition-colors duration-500`}
       style={wallpaperStyle}
       onDoubleClick={(e) => {
         if (e.target === e.currentTarget) clearDesktopIconSelection();
       }}
     >
-      {/* Advanced holographic overlays */}
-      <div className="pointer-events-none absolute inset-0 opacity-40" aria-hidden>
+      {/* Advanced holographic overlays - adjust opacity based on theme */}
+      <div className={`pointer-events-none absolute inset-0 ${darkTheme ? 'opacity-40' : 'opacity-20'}`} aria-hidden>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(124,58,237,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.2),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08),transparent_70%)]" />
