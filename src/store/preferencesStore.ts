@@ -10,11 +10,12 @@ export interface PreferencesState {
   clock24h: boolean;
   wallpaper: WallpaperId;
   customWallpaperUrl?: string | null;
-  toggle: (_key: keyof Omit<PreferencesState, 'toggle' | 'wallpaper' | 'setWallpaper' | 'toggleTheme' | 'setCustomWallpaper' | 'clearCustomWallpaper' | 'customWallpaperUrl'>) => void;
+  toggle: (_key: keyof Omit<PreferencesState, 'toggle' | 'wallpaper' | 'setWallpaper' | 'toggleTheme' | 'setCustomWallpaper' | 'clearCustomWallpaper' | 'customWallpaperUrl' | 'setDarkTheme'>) => void;
   setWallpaper: (_wallpaper: WallpaperId) => void;
   setCustomWallpaper: (_url: string) => void;
   clearCustomWallpaper: () => void;
   toggleTheme: () => void;
+  setDarkTheme: (_darkTheme: boolean) => void;
 }
 
 export const usePreferencesStore = create<PreferencesState>()(
@@ -43,6 +44,16 @@ export const usePreferencesStore = create<PreferencesState>()(
           // Only auto-switch gradient wallpaper; keep custom as-is
           if (s.wallpaper === 'dark' || s.wallpaper === 'light') {
             next.wallpaper = nextDark ? 'dark' : 'light';
+          }
+          return next as PreferencesState;
+        });
+      },
+      setDarkTheme: (darkTheme) => {
+        set((s) => {
+          const next: Partial<PreferencesState> = { darkTheme };
+          // Auto-switch gradient wallpaper; keep custom as-is
+          if (s.wallpaper === 'dark' || s.wallpaper === 'light') {
+            next.wallpaper = darkTheme ? 'dark' : 'light';
           }
           return next as PreferencesState;
         });

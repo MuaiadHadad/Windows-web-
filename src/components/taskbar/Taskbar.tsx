@@ -7,6 +7,7 @@ import { Icon } from '../icons/Icons';
 import { motion } from 'framer-motion';
 
 const TaskbarClock = dynamic(() => import('./TaskbarClock'), { ssr: false });
+const SystemTray = dynamic(() => import('./SystemTray').then(mod => ({ default: mod.SystemTray })), { ssr: false });
 
 const Taskbar: React.FC = () => {
   const windows = useWindowsStore((s) => s.windows);
@@ -77,6 +78,7 @@ const Taskbar: React.FC = () => {
           })}
         </div>
 
+        <SystemTray />
         <TaskbarClock />
       </div>
     </div>

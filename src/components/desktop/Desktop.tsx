@@ -3,13 +3,14 @@ import Taskbar from '../taskbar/Taskbar';
 import Window from '../window/Window';
 import { useWindowsStore } from '../../store/windowsStore';
 import StartMenu from '../taskbar/StartMenu';
-import { APP_REGISTRY, getAppMeta } from '../../apps/registry';
+import { APP_REGISTRY } from '../../apps/registry';
 import { usePreferencesStore } from '../../store/preferencesStore';
 import { useUIStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
 import { useNotesStore } from '../../store/notesStore';
-import { Icon } from '../icons/Icons';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { DesktopContextMenu } from './DesktopContextMenu';
+import { DesktopIcon } from './DesktopIcon';
 
 const Desktop: React.FC = () => {
   const windows = useWindowsStore((s) => s.windows);
@@ -26,6 +27,17 @@ const Desktop: React.FC = () => {
 
   // Enable keyboard shortcuts
   useKeyboardShortcuts();
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    // Only show on desktop background, not on icons or windows
+    if (e.target === e.currentTarget) {
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    }
+  }, []);
 
   // Keep <html> class in sync with theme immediately (avoids flash)
   useEffect(() => {
@@ -151,6 +163,7 @@ const Desktop: React.FC = () => {
       onDoubleClick={(e) => {
         if (e.target === e.currentTarget) clearDesktopIconSelection();
       }}
+      onContextMenu={handleContextMenu}
     >
       {/* Advanced holographic overlays - adjust opacity based on theme */}
       {showOverlays && (
@@ -178,12 +191,10 @@ const Desktop: React.FC = () => {
       )}
 
       {/* Desktop icons layer */}
-      <div className="relative z-0 flex flex-1 flex-col p-8">
-        <div className="grid w-max grid-cols-2 gap-8 drop-shadow-[0_20px_80px_rgba(139,92,246,0.4)]">
-          {Object.values(APP_REGISTRY).map((meta) => (
-            <DesktopIcon key={meta.id} appId={meta.id} title={meta.title} />
-          ))}
-        </div>
+      <div className="relative z-0 flex-1 pointer-events-none">
+        {Object.values(APP_REGISTRY).map((meta, index) => (
+          <DesktopIcon key={meta.id} appId={meta.id} title={meta.title} index={index} />
+        ))}
       </div>
 
       {/* Windows render above icons */}
@@ -194,72 +205,18 @@ const Desktop: React.FC = () => {
       {/* Taskbar & StartMenu */}
       <Taskbar />
       <StartMenu />
+
+      {/* Desktop Context Menu */}
+      <DesktopContextMenu
+        x={contextMenu?.x ?? 0}
+        y={contextMenu?.y ?? 0}
+        isOpen={!!contextMenu}
+        onClose={() => setContextMenu(null)}
+      />
     </div>
   );
 };
 
-const DesktopIcon: React.FC<{ appId: string; title: string }> = ({ appId, title }) => {
-  const openWindow = useWindowsStore((s) => s.openWindow);
-  const meta = getAppMeta(appId);
-  const selectedId = useUIStore((s) => s.selectedDesktopIconId);
-  const selectIcon = useUIStore((s) => s.selectDesktopIcon);
-  const isSelected = selectedId === appId;
-
-  return (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        selectIcon(appId);
-      }}
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        openWindow(appId, title);
-      }}
-      aria-label={title}
-      aria-pressed={isSelected}
-      className={`group relative flex w-32 flex-col items-center gap-3 rounded-2xl px-3 py-4 text-center text-sm outline-none transition-all duration-300 ${
-        isSelected
-          ? 'bg-gradient-to-br from-violet-500/20 via-fuchsia-500/10 to-cyan-500/20 ring-2 ring-violet-400/60 shadow-[0_0_30px_rgba(139,92,246,0.4)]'
-          : 'hover:bg-white/5 ring-1 ring-transparent hover:ring-violet-300/30'
-      } backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-violet-400`}
-    >
-      {/* Holographic aura */}
-      <div className={`absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br ${meta.aura.replace('bg-', 'from-')} to-transparent opacity-0 blur-3xl transition-all duration-500 group-hover:opacity-80 ${isSelected ? 'opacity-70' : ''}`} />
-
-      {/* Icon container with advanced styling */}
-      <div
-        className={`relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br ${meta.accent} text-4xl shadow-[0_20px_60px_rgba(139,92,246,0.5),inset_0_1px_0_rgba(255,255,255,0.3)] ring-1 ring-white/30 transition-all duration-300 group-hover:-translate-y-2 group-hover:scale-110 group-hover:shadow-[0_30px_80px_rgba(139,92,246,0.6),0_0_40px_rgba(167,139,250,0.4)] ${
-          isSelected ? 'scale-105 ring-2 ring-violet-300/80 shadow-[0_25px_70px_rgba(139,92,246,0.6)]' : ''
-        }`}
-      >
-        <span className="relative z-10 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"><Icon name={meta.icon as any} /></span>
-        {/* Glass reflection */}
-        <span
-          className={`pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-white/40 via-white/10 to-transparent opacity-0 mix-blend-overlay transition-all duration-500 group-hover:opacity-60 ${
-            isSelected ? 'opacity-50' : ''
-          }`}
-          aria-hidden
-        />
-        {/* Animated border glow */}
-        <span
-          className={`pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 opacity-0 blur-xl transition-all duration-500 group-hover:opacity-40 ${
-            isSelected ? 'opacity-30 animate-pulse' : ''
-          }`}
-          aria-hidden
-        />
-      </div>
-
-      {/* Text with enhanced styling */}
-      <div className="space-y-1 text-white">
-        <span className={`block font-semibold tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] transition-colors ${isSelected ? 'text-violet-200' : 'group-hover:text-violet-100'}`}>
-          {title}
-        </span>
-        <span className="block text-[10px] text-white/60 drop-shadow-sm line-clamp-2 font-light" title={meta.description}>
-          {meta.description}
-        </span>
-      </div>
-    </button>
-  );
-};
-
 export default Desktop;
+
+
