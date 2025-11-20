@@ -12,11 +12,11 @@ class MyDocument extends Document {
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
           <meta name="apple-mobile-web-app-title" content="WinWeb" />
+          <script dangerouslySetInnerHTML={{ __html: `try{var p=localStorage.getItem('winweb-preferences');if(p){var j=JSON.parse(p);if(j?.state?.darkTheme){document.documentElement.classList.add('dark');}}}catch(e){}` }} />
         </Head>
         <body>
           <Main />
           <NextScript />
-          <script dangerouslySetInnerHTML={{ __html: `try{var p=localStorage.getItem('winweb-preferences');if(p){var j=JSON.parse(p);if(j?.state?.darkTheme){document.documentElement.classList.add('dark');}}}catch(e){}` }} />
         </body>
       </Html>
     );

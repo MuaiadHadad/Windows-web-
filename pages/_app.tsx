@@ -17,6 +17,8 @@ function MyApp({ Component, pageProps }: AppProps) {
     const el = document.documentElement;
     if (darkTheme) el.classList.add('dark');
     else el.classList.remove('dark');
+    const meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (meta) meta.content = darkTheme ? '#0a0a1f' : '#f0f4ff';
     console.log('[Theme] Applied class:', darkTheme ? 'dark' : 'light');
   }, [darkTheme]);
 

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useWindowsStore } from '../../store/windowsStore';
 import StartMenuToggle from './StartMenu';
 import { getAppMeta } from '../../apps/registry';
 import dynamic from 'next/dynamic';
+import { Icon } from '../icons/Icons';
+import { motion } from 'framer-motion';
 
 const TaskbarClock = dynamic(() => import('./TaskbarClock'), { ssr: false });
 
@@ -11,12 +13,14 @@ const Taskbar: React.FC = () => {
   const minimizeWindow = useWindowsStore((s) => s.minimizeWindow);
   const focusWindow = useWindowsStore((s) => s.focusWindow);
 
-  const activeWindowId = windows.reduce<string | null>((acc, w) => {
-    if (w.minimized) return acc;
-    if (!acc) return w.id;
-    const current = windows.find((x) => x.id === acc)!;
-    return w.zIndex > current.zIndex ? w.id : acc;
-  }, null);
+  const activeWindowId = useMemo(() => {
+    return windows.reduce<string | null>((acc, w) => {
+      if (w.minimized) return acc;
+      if (!acc) return w.id;
+      const current = windows.find((x) => x.id === acc)!;
+      return w.zIndex > current.zIndex ? w.id : acc;
+    }, null);
+  }, [windows]);
 
   return (
     <div className="pointer-events-none fixed bottom-4 left-0 right-0 flex justify-center z-[1000]">
@@ -29,32 +33,46 @@ const Taskbar: React.FC = () => {
         <div className="flex flex-1 items-center justify-center gap-2 overflow-x-auto">
           {windows.map((w) => {
             const meta = getAppMeta(w.appId);
-            const isActive = activeWindowId === w.id;
+            const isActive = activeWindowId === w.id && !w.minimized;
             return (
-              <button
+              <motion.button
                 key={w.id}
                 onClick={() => {
-                  if (w.minimized) {
+                  if (isActive) {
+                    // Toggle minimize for active window
                     minimizeWindow(w.id);
-                    focusWindow(w.id);
                   } else {
+                    // Restore and focus
+                    if (w.minimized) minimizeWindow(w.id);
                     focusWindow(w.id);
                   }
                 }}
                 aria-label={w.title}
                 aria-pressed={isActive}
-                className={`group relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-white/10 to-white/5 text-xl text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:from-white/20 hover:to-white/15 hover:scale-110 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] focus:outline-none focus:ring-2 focus:ring-violet-400/60 ${
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className={`group relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-white/10 to-white/5 text-xl text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:from-white/20 hover:to-white/15 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] focus:outline-none focus:ring-2 focus:ring-violet-400/60 ${
                   w.minimized ? 'opacity-50' : ''
                 } ${isActive ? 'ring-2 ring-violet-400/80 from-white/25 to-white/20 shadow-[0_0_40px_rgba(139,92,246,0.6)]' : ''}`}
               >
-                <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" title={w.title}>{meta.glyph}</span>
+                <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]" title={w.title}>
+                  <Icon name={meta.icon as any} />
+                </span>
                 {/* Active indicator */}
-                <span
-                  className={`absolute bottom-1 h-1 w-6 rounded-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-all duration-300 ${
-                    w.minimized ? 'scale-x-0 opacity-0' : 'scale-100 opacity-100'
-                  } ${isActive ? 'brightness-150 h-1.5' : ''}`}
+                <motion.span
+                  initial={false}
+                  animate={{
+                    scaleX: w.minimized ? 0 : 1,
+                    opacity: w.minimized ? 0 : 1,
+                    height: isActive ? 6 : 4,
+                  }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  className={`absolute bottom-1 w-6 rounded-full bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 shadow-[0_0_12px_rgba(139,92,246,0.8)] ${
+                    isActive ? 'brightness-150' : ''
+                  }`}
                 />
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -65,4 +83,6 @@ const Taskbar: React.FC = () => {
   );
 };
 
-export default Taskbar;
+Taskbar.displayName = 'Taskbar';
+
+export default React.memo(Taskbar);

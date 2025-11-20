@@ -4,6 +4,7 @@ import { useUIStore } from '../../store/uiStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { APP_REGISTRY } from '../../apps/registry';
 import { useAuthStore } from '../../store/authStore';
+import { Icon } from '../icons/Icons';
 
 const StartMenu: React.FC = () => {
   const openWindow = useWindowsStore((s) => s.openWindow);
@@ -87,7 +88,7 @@ const StartMenu: React.FC = () => {
                 <StartItem
                   key={app.id}
                   label={app.title}
-                  glyph={app.glyph}
+                  iconName={app.icon}
                   description={app.description}
                   query={query}
                   onClick={() => {
@@ -159,10 +160,10 @@ const recommendedItems = [
   { title: 'Docs folder', detail: 'Files · Updated', time: '5m ago', emoji: '📁' },
 ];
 
-const StartItem: React.FC<{ label: string; description: string; glyph: string; query: string; onClick: () => void }> = ({
+const StartItem: React.FC<{ label: string; description: string; iconName: string; query: string; onClick: () => void }> = React.memo(({
   label,
   description,
-  glyph,
+  iconName,
   query,
   onClick,
 }) => {
@@ -185,11 +186,9 @@ const StartItem: React.FC<{ label: string; description: string; glyph: string; q
       onClick={onClick}
       className="group relative flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 px-3 py-4 text-center transition-all hover:-translate-y-1 hover:border-violet-400/40 hover:from-white/10 hover:to-white/15 hover:shadow-[0_15px_50px_rgba(139,92,246,0.4)] focus:outline-none focus:ring-2 focus:ring-violet-400/60"
     >
-      {/* Glow effect */}
       <div className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-violet-500/0 to-fuchsia-500/0 blur-xl opacity-0 transition-opacity group-hover:from-violet-500/20 group-hover:to-fuchsia-500/20 group-hover:opacity-100" />
-
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 via-fuchsia-500/15 to-cyan-500/20 text-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] transition-all group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.5)]" aria-hidden>
-        {glyph}
+        <Icon name={iconName as any} />
       </div>
       <div className="space-y-0.5">
         <div className="font-semibold text-white/95 text-xs truncate w-full" title={label}>{highlightedLabel}</div>
@@ -197,7 +196,7 @@ const StartItem: React.FC<{ label: string; description: string; glyph: string; q
       </div>
     </button>
   );
-};
+});
 
 const ToggleButton: React.FC = () => {
   const toggleStartMenu = useUIStore((s) => s.toggleStartMenu);
